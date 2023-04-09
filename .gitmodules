@@ -1,0 +1,3 @@
+[submodule "ucore"]
+	path = ucore
+	url = https://github.com/livingshade/uCore-Tutorial-Test-2022A
