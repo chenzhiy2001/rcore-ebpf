@@ -16,6 +16,7 @@ const SYSCALL_GETPID: usize = 172;
 const SYSCALL_FORK: usize = 220;
 const SYSCALL_EXEC: usize = 221;
 const SYSCALL_WAITPID: usize = 260;
+const SYSCALL_BPF: usize = 280; 
 const SYSCALL_THREAD_CREATE: usize = 1000;
 const SYSCALL_GETTID: usize = 1001;
 const SYSCALL_WAITTID: usize = 1002;
@@ -33,13 +34,15 @@ const SYSCALL_FRAMEBUFFER_FLUSH: usize = 2001;
 const SYSCALL_EVENT_GET: usize = 3000;
 const SYSCALL_KEY_PRESSED: usize = 3001;
 
-mod fs;
+
+pub(crate) mod fs;
 mod gui;
 mod input;
 mod net;
 mod process;
 mod sync;
 mod thread;
+mod ebpf;
 
 use fs::*;
 use gui::*;
@@ -48,6 +51,7 @@ use net::*;
 use process::*;
 use sync::*;
 use thread::*;
+use ebpf::*;
 
 pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
     match syscall_id {
@@ -85,6 +89,7 @@ pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
         SYSCALL_FRAMEBUFFER_FLUSH => sys_framebuffer_flush(),
         SYSCALL_EVENT_GET => sys_event_get(),
         SYSCALL_KEY_PRESSED => sys_key_pressed(),
+        SYSCALL_BPF => sys_bpf(args[0] as isize, args[1] as usize, args[2] as usize),
         _ => panic!("Unsupported syscall_id: {}", syscall_id),
     }
 }

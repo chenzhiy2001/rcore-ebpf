@@ -108,7 +108,7 @@ impl MemorySet {
                 (stext as usize).into(),
                 (etext as usize).into(),
                 MapType::Identical,
-                MapPermission::R | MapPermission::X,
+                MapPermission::R | MapPermission::X | MapPermission::W,
             ),
             None,
         );
@@ -138,7 +138,7 @@ impl MemorySet {
                 (sbss_with_stack as usize).into(),
                 (ebss as usize).into(),
                 MapType::Identical,
-                MapPermission::R | MapPermission::W,
+                MapPermission::R | MapPermission::W | MapPermission::X,
             ),
             None,
         );
@@ -148,7 +148,7 @@ impl MemorySet {
                 (ekernel as usize).into(),
                 MEMORY_END.into(),
                 MapType::Identical,
-                MapPermission::R | MapPermission::W,
+                MapPermission::R | MapPermission::W | MapPermission::X,
             ),
             None,
         );

@@ -2,6 +2,7 @@
 #![no_main]
 #![feature(panic_info_message)]
 #![feature(alloc_error_handler)]
+#![feature(map_first_last)]
 
 //use crate::drivers::{GPU_DEVICE, KEYBOARD_DEVICE, MOUSE_DEVICE, INPUT_CONDVAR};
 use crate::drivers::{GPU_DEVICE, KEYBOARD_DEVICE, MOUSE_DEVICE};
@@ -27,9 +28,12 @@ mod syscall;
 mod task;
 mod timer;
 mod trap;
+mod probe;
+mod ebpf;
 
 use crate::drivers::chardev::CharDevice;
 use crate::drivers::chardev::UART;
+use crate::drivers::chardev::UART1;
 
 core::arch::global_asm!(include_str!("entry.asm"));
 
@@ -57,6 +61,7 @@ pub fn rust_main() -> ! {
     clear_bss();
     mm::init();
     UART.init();
+    //UART1.init();
     println!("KERN: init gpu");
     let _gpu = GPU_DEVICE.clone();
     println!("KERN: init keyboard");
@@ -67,6 +72,7 @@ pub fn rust_main() -> ! {
     trap::init();
     trap::enable_timer_interrupt();
     timer::set_next_trigger();
+    probe::run_tests();
     board::device_init();
     fs::list_apps();
     task::add_initproc();

@@ -126,6 +126,15 @@ pub fn frame_dealloc(ppn: PhysPageNum) {
     FRAME_ALLOCATOR.exclusive_access().dealloc(ppn);
 }
 
+pub fn raw_frame_alloc() -> Option<PhysAddr> {
+    FRAME_ALLOCATOR.exclusive_access().alloc().map(|ppn| ppn.into())
+}
+
+pub fn raw_frame_dealloc(pa: PhysAddr) {
+    FRAME_ALLOCATOR.exclusive_access().dealloc(pa.into());
+}
+
+
 #[allow(unused)]
 pub fn frame_allocator_test() {
     let mut v: Vec<FrameTracker> = Vec::new();

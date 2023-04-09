@@ -1,6 +1,7 @@
 mod context;
 
 use crate::config::TRAMPOLINE;
+//use crate::probe::kprobes_breakpoint_handler;
 use crate::syscall::syscall;
 use crate::task::{
     check_signals_of_current, current_add_signal, current_trap_cx, current_trap_cx_user_va,
@@ -142,9 +143,12 @@ pub fn trap_return() -> ! {
         );
     }
 }
+extern "C" {
+    fn kprobes_breakpoint_handler(_trap_cx: &TrapContext);
+}
 
 #[no_mangle]
-pub fn trap_from_kernel(_trap_cx: &TrapContext) {
+pub fn trap_from_kernel(mut _trap_cx: &TrapContext) {
     let scause = scause::read();
     let stval = stval::read();
     match scause.cause() {
@@ -155,6 +159,10 @@ pub fn trap_from_kernel(_trap_cx: &TrapContext) {
             set_next_trigger();
             check_timer();
             // do not schedule now
+        }
+        Trap::Exception(Exception::Breakpoint) => {
+            println!("[kernel] breakpoint at {:#x}", _trap_cx.sepc);
+            unsafe {kprobes_breakpoint_handler(&mut *(_trap_cx as *const TrapContext as *mut TrapContext));} // ugly :(
         }
         _ => {
             panic!(

@@ -50,7 +50,7 @@ $(KERNEL_BIN): kernel
 fs-img: $(APPS)
 	@cd ../user && make build TEST=$(TEST)
 	@rm -f $(FS_IMG)
-	@cd ../easy-fs-fuse && cargo run --release -- -s ../user/src/bin/ -t ../user/target/riscv64gc-unknown-none-elf/release/
+	@cd ../easy-fs-fuse && cargo run --release -- -s ../user/build/app/ -t ../user/target/riscv64gc-unknown-none-elf/release/
 
 $(APPS):
 
@@ -88,6 +88,7 @@ run-inner-none: build
 		-device virtio-net-device,netdev=net0 \
 		-netdev user,id=net0,hostfwd=udp::6200-:2000,hostfwd=tcp::6201-:80 \
 		-serial stdio
+		-serial /dev/pts/3
 
 run-inner: build
 	@qemu-system-riscv64 \

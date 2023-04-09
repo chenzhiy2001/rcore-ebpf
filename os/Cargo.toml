@@ -20,6 +20,12 @@ embedded-graphics = "0.7.1"
 tinybmp = "0.3.1"
 log = "0.4"
 sbi-rt = { version = "0.0.2", features = ["legacy"] }
+lock = { git = "https://github.com/DeathWish5/kernel-sync", rev = "8486b8" }
+riscv-decode = { git = "https://github.com/latte-c/riscv-decode", rev = "bc8da4e" }
+numeric-enum-macro = "0.2.0"
+dyn-fmt = { version = "0.3.0", default-features = false }
+downcast-rs = { version = "1.2", default-features = false }
+ebpf2rv = { git = "https://github.com/livingshade/ebpf2rv", rev = "ecfc526" }
 
 [profile.release]
 debug = true
