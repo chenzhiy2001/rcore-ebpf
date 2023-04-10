@@ -7,8 +7,6 @@
 #![allow(unreachable_code)]
 #![allow(unreachable_patterns)]
 
-use log::info;
-
 use super::*;
 
 use crate::ebpf::{

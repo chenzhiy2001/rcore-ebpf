@@ -18,7 +18,6 @@ use core::{mem::size_of, fmt::Write, iter::Map};
 
 use alloc::{sync::Arc, vec};
 use alloc::string::String;
-use log::{warn, trace};
 use core::slice::{from_raw_parts, from_raw_parts_mut};
 use downcast_rs::{impl_downcast, DowncastSync};
 

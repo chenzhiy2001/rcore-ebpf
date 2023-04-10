@@ -7,7 +7,6 @@ use alloc::{collections::BTreeMap, vec};
 use alloc::sync::Arc;
 use alloc::vec::Vec;
 use lazy_static::lazy_static;
-use log::{trace, info};
 use crate::probe::{arch::trapframe::TrapFrame, kprobes::unregister_kprobe};
 
 use lock::Mutex;

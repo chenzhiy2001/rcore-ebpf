@@ -57,7 +57,7 @@ $(APPS):
 kernel:
 	@echo Platform: $(BOARD)
 	@cp src/linker-$(BOARD).ld src/linker.ld
-	@cargo build --release
+	@LOG=TRACE cargo build --release
 	@rm src/linker.ld
 
 clean:

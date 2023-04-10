@@ -6,10 +6,13 @@
 
 //use crate::drivers::{GPU_DEVICE, KEYBOARD_DEVICE, MOUSE_DEVICE, INPUT_CONDVAR};
 use crate::drivers::{GPU_DEVICE, KEYBOARD_DEVICE, MOUSE_DEVICE};
-extern crate alloc;
 
 #[macro_use]
 extern crate bitflags;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate alloc;
 
 #[path = "boards/qemu.rs"]
 mod board;
@@ -30,6 +33,7 @@ mod timer;
 mod trap;
 mod probe;
 mod ebpf;
+mod logging;
 
 use crate::drivers::chardev::CharDevice;
 use crate::drivers::chardev::UART;
@@ -59,6 +63,7 @@ lazy_static! {
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
+    logging::init();
     mm::init();
     UART.init();
     //UART1.init();

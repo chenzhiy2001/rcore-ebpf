@@ -4,7 +4,6 @@
  
 use alloc::string::String;
 use alloc::vec::Vec;
-use log::{trace, info, error};
 use xmas_elf;
 use xmas_elf::header::Machine;
 use xmas_elf::sections::*;

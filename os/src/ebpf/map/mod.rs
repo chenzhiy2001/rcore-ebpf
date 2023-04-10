@@ -5,7 +5,6 @@
 //! provides interface for map operations
 use lock::Mutex;
 use alloc::sync::Arc;
-use log::trace;
 
 
 use super::consts::*;

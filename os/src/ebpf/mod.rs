@@ -20,7 +20,6 @@ pub mod osutil;
 use lock::Mutex;
 use alloc::collections::BTreeMap;
 use alloc::sync::Arc;
-use log::trace;
 use core::sync::atomic::{AtomicU32, Ordering};
 use lazy_static::lazy_static;
 use map::SharedBpfMap;
