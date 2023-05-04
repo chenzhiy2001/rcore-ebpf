@@ -90,8 +90,7 @@ fn bpf_helper_trace_printk(fmt: u64, fmt_size: u64, p1: u64, p2: u64, p3: u64) -
         &[p1, p2, p3]
     ).to_string();
 
-    os_console_write_str(output.as_str());
-    0 // TODO: return number of bytes written
+    os_console_write_str(output.as_str()) //return number of bytes written
 }
 
 /// not implemented

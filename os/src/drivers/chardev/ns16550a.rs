@@ -157,7 +157,9 @@ impl<const BASE_ADDR: usize> CharDevice for NS16550a<BASE_ADDR> {
 
     fn read(&self) -> u8 {
         loop {
+            
             let mut inner = self.inner.exclusive_access();
+            
             if let Some(ch) = inner.read_buffer.pop_front() {
                 return ch;
             } else {
@@ -183,4 +185,23 @@ impl<const BASE_ADDR: usize> CharDevice for NS16550a<BASE_ADDR> {
             self.condvar.signal();
         }
     }
+}
+
+impl<const BASE_ADDR: usize> NS16550a<BASE_ADDR>{
+    pub fn loop_read(&self)-> isize{ // not stable
+        
+        let mut inner = self.inner.exclusive_access();
+            
+        if let Some(ch) = inner.read_buffer.pop_front() {
+            return ch as isize;
+        } 
+        else{
+            -1
+        }
+    }
+    pub fn flush(&self){ // useless
+        let mut inner = self.inner.exclusive_access();
+        inner.read_buffer.clear();
+    }
+    
 }

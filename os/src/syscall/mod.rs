@@ -33,6 +33,9 @@ const SYSCALL_FRAMEBUFFER: usize = 2000;
 const SYSCALL_FRAMEBUFFER_FLUSH: usize = 2001;
 const SYSCALL_EVENT_GET: usize = 3000;
 const SYSCALL_KEY_PRESSED: usize = 3001;
+const SYSCALL_UART1_READ: usize = 4000;
+const SYSCALL_UART1_WRITE: usize = 4001;
+const SYSCALL_UART1_FLUSH: usize = 4002;
 
 
 pub(crate) mod fs;
@@ -43,6 +46,7 @@ mod process;
 mod sync;
 mod thread;
 mod ebpf;
+mod uart1;
 
 use fs::*;
 use gui::*;
@@ -52,6 +56,7 @@ use process::*;
 use sync::*;
 use thread::*;
 use ebpf::*;
+use uart1::*;
 
 pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
     match syscall_id {
@@ -90,6 +95,9 @@ pub fn syscall(syscall_id: usize, args: [usize; 3]) -> isize {
         SYSCALL_EVENT_GET => sys_event_get(),
         SYSCALL_KEY_PRESSED => sys_key_pressed(),
         SYSCALL_BPF => sys_bpf(args[0] as isize, args[1] as usize, args[2] as usize),
+        SYSCALL_UART1_READ => sys_uart1_read(),
+        SYSCALL_UART1_WRITE => sys_uart1_write(args[0]),
+        SYSCALL_UART1_FLUSH => sys_uart1_flush(),
         _ => panic!("Unsupported syscall_id: {}", syscall_id),
     }
 }

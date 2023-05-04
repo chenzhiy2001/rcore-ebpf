@@ -26,8 +26,8 @@ make clean
 make 
 popd
 
-userprogs=("naivetest" "maptest" "kernmaptest" "loadprogextest")
-kernprogs=("map" "time1" "context")
+userprogs=("naivetest" "maptest" "kernmaptest" "loadprogextest" "gdbserver")
+kernprogs=("map" "time1" "context" "get_regs")
 objcopy="riscv64-unknown-elf-objcopy"
 for i in ${userprogs[@]};
 do

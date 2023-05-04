@@ -4,8 +4,7 @@ pub const MMIO: &[(usize, usize)] = &[
     (0x0010_0000, 0x00_2000), // VIRT_TEST/RTC  in virt machine
     (0x2000000, 0x10000),     // core local interrupter (CLINT)
     (0xc000000, 0x210000),    // VIRT_PLIC in virt machine
-    (0x10000000, 0x9000),     // VIRT_UART0 with GPU  in virt machine
-//    (0x10001000, 0x100),     // VIRT_UART1 with GPU  in virt machine
+    (0x10000000, 0xD000),     // VIRT_UART0 with GPU with VIRT_UART1,2,3,4 in virt machine
 ];
 
 pub type BlockDeviceImpl = crate::drivers::block::VirtIOBlock;
@@ -15,7 +14,7 @@ pub type DebugDeviceImpl = crate::drivers::chardev::NS16550a<VIRT_UART1>;
 
 pub const VIRT_PLIC: usize = 0xC00_0000;
 pub const VIRT_UART: usize = 0x1000_0000;
-pub const VIRT_UART1: usize = 0x1000_1000;
+pub const VIRT_UART1: usize = 0x1000_9000;
 #[allow(unused)]
 pub const VIRTGPU_XRES: u32 = 1280;
 #[allow(unused)]
@@ -34,8 +33,8 @@ pub fn device_init() {
     let machine = IntrTargetPriority::Machine;
     plic.set_threshold(hart_id, supervisor, 0);
     plic.set_threshold(hart_id, machine, 1);
-    //irq nums: 5 keyboard, 6 mouse, 8 block, 10 uart
-    for intr_src_id in [5usize, 6, 8, 10] {
+    //irq nums: 5 keyboard, 6 mouse, 8 block, 10 uart0, 12 uart1
+    for intr_src_id in [5usize, 6, 8, 10, 12] {
         plic.enable(hart_id, supervisor, intr_src_id);
         plic.set_priority(intr_src_id, 1);
     }
@@ -52,6 +51,7 @@ pub fn irq_handler() {
         6 => MOUSE_DEVICE.handle_irq(),
         8 => BLOCK_DEVICE.handle_irq(),
         10 => UART.handle_irq(),
+        12 => UART1.handle_irq(),
         _ => panic!("unsupported IRQ {}", intr_src_id),
     }
     plic.complete(0, IntrTargetPriority::Supervisor, intr_src_id);

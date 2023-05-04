@@ -21,7 +21,7 @@ use alloc::string::String;
 use core::slice::{from_raw_parts, from_raw_parts_mut};
 use downcast_rs::{impl_downcast, DowncastSync};
 
-use crate::task::TaskControlBlock;
+use crate::{task::TaskControlBlock, drivers::chardev::{UART1, CharDevice}};
 
 /// ThreadLike is an analog for Linux thread
 pub trait ThreadLike : DowncastSync {
@@ -65,9 +65,16 @@ pub fn os_get_current_cpu() -> u8 {
    0 // not viable
 }
 
-/// write a str to kernel log
-pub fn os_console_write_str(s: &str) {
-    crate::console::Stdout.write_str(s).unwrap();
+/// write a str to uart1 log
+/// returns modulo 256 sum
+pub fn os_console_write_str(s: &str) -> i64 { 
+    // crate::console::Stdout.write_str(s).unwrap();
+    let mut bytes_written:u8 = 0;
+    for c in s.chars() {
+        UART1.write(c as u8);
+        bytes_written += 1;
+    }
+    bytes_written as i64
 }
 
 /// # os_copy_from_user

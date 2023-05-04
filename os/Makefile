@@ -88,7 +88,6 @@ run-inner-none: build
 		-device virtio-net-device,netdev=net0 \
 		-netdev user,id=net0,hostfwd=udp::6200-:2000,hostfwd=tcp::6201-:80 \
 		-serial stdio
-		-serial /dev/pts/3
 
 run-inner: build
 	@qemu-system-riscv64 \
@@ -104,7 +103,8 @@ run-inner: build
 		-device virtio-mouse-device \
 		-device virtio-net-device,netdev=net0 \
 		-netdev user,id=net0,hostfwd=udp::6200-:2000,hostfwd=tcp::6201-:80 \
-		-serial stdio
+		-serial stdio \
+		-serial pty
 
 fdt:
 	@qemu-system-riscv64 -M 128m -machine virt,dumpdtb=virt.out

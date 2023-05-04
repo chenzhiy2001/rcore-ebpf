@@ -66,7 +66,7 @@ pub fn rust_main() -> ! {
     logging::init();
     mm::init();
     UART.init();
-    //UART1.init();
+    UART1.init();
     println!("KERN: init gpu");
     let _gpu = GPU_DEVICE.clone();
     println!("KERN: init keyboard");
