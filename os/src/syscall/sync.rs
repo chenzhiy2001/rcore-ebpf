@@ -18,6 +18,7 @@ pub fn sys_mutex_create(blocking: bool) -> isize {
     } else {
         Some(Arc::new(MutexBlocking::new()))
     };
+    // println!("Getting PCB in src/syscall/sync.rs sys_mutex_create()");
     let mut process_inner = process.inner_exclusive_access();
     if let Some(id) = process_inner
         .mutex_list
@@ -36,6 +37,7 @@ pub fn sys_mutex_create(blocking: bool) -> isize {
 
 pub fn sys_mutex_lock(mutex_id: usize) -> isize {
     let process = current_process();
+    // println!("Getting PCB in src/syscall/sync.rs sys_mutex_lock()");
     let process_inner = process.inner_exclusive_access();
     let mutex = Arc::clone(process_inner.mutex_list[mutex_id].as_ref().unwrap());
     drop(process_inner);
@@ -46,6 +48,7 @@ pub fn sys_mutex_lock(mutex_id: usize) -> isize {
 
 pub fn sys_mutex_unlock(mutex_id: usize) -> isize {
     let process = current_process();
+    // println!("Getting PCB in src/syscall/sync.rs sys_mutex_unlock()");
     let process_inner = process.inner_exclusive_access();
     let mutex = Arc::clone(process_inner.mutex_list[mutex_id].as_ref().unwrap());
     drop(process_inner);
@@ -56,6 +59,7 @@ pub fn sys_mutex_unlock(mutex_id: usize) -> isize {
 
 pub fn sys_semaphore_create(res_count: usize) -> isize {
     let process = current_process();
+    // println!("Getting PCB in src/syscall/sync.rs sys_semaphore_create()");
     let mut process_inner = process.inner_exclusive_access();
     let id = if let Some(id) = process_inner
         .semaphore_list
@@ -77,6 +81,7 @@ pub fn sys_semaphore_create(res_count: usize) -> isize {
 
 pub fn sys_semaphore_up(sem_id: usize) -> isize {
     let process = current_process();
+    // println!("Getting PCB in src/syscall/sync.rs sys_semaphore_up()");
     let process_inner = process.inner_exclusive_access();
     let sem = Arc::clone(process_inner.semaphore_list[sem_id].as_ref().unwrap());
     drop(process_inner);
@@ -86,6 +91,7 @@ pub fn sys_semaphore_up(sem_id: usize) -> isize {
 
 pub fn sys_semaphore_down(sem_id: usize) -> isize {
     let process = current_process();
+    // println!("Getting PCB in src/syscall/sync.rs sys_semaphore_down()");
     let process_inner = process.inner_exclusive_access();
     let sem = Arc::clone(process_inner.semaphore_list[sem_id].as_ref().unwrap());
     drop(process_inner);
@@ -95,6 +101,7 @@ pub fn sys_semaphore_down(sem_id: usize) -> isize {
 
 pub fn sys_condvar_create() -> isize {
     let process = current_process();
+    // println!("Getting PCB in src/syscall/sync.rs sys_condvar_create()");
     let mut process_inner = process.inner_exclusive_access();
     let id = if let Some(id) = process_inner
         .condvar_list
@@ -116,6 +123,7 @@ pub fn sys_condvar_create() -> isize {
 
 pub fn sys_condvar_signal(condvar_id: usize) -> isize {
     let process = current_process();
+    // println!("Getting PCB in src/syscall/sync.rs sys_condcvar_signal()");
     let process_inner = process.inner_exclusive_access();
     let condvar = Arc::clone(process_inner.condvar_list[condvar_id].as_ref().unwrap());
     drop(process_inner);
@@ -125,6 +133,7 @@ pub fn sys_condvar_signal(condvar_id: usize) -> isize {
 
 pub fn sys_condvar_wait(condvar_id: usize, mutex_id: usize) -> isize {
     let process = current_process();
+    // println!("Getting PCB in src/syscall/sync.rs sys_condvar_wait()");
     let process_inner = process.inner_exclusive_access();
     let condvar = Arc::clone(process_inner.condvar_list[condvar_id].as_ref().unwrap());
     let mutex = Arc::clone(process_inner.mutex_list[mutex_id].as_ref().unwrap());

@@ -4,7 +4,7 @@ use super::TaskControlBlock;
 use super::{add_task, SignalFlags};
 use super::{pid_alloc, PidHandle};
 use crate::fs::{File, Stdin, Stdout};
-use crate::mm::{translated_refmut, MemorySet, KERNEL_SPACE};
+use crate::mm::{translated_refmut, MemorySet, KERNEL_SPACE, PageTable};
 use crate::sync::{Condvar, Mutex, Semaphore, UPIntrFreeCell, UPIntrRefMut};
 use crate::trap::{trap_handler, TrapContext};
 use alloc::string::String;
@@ -32,6 +32,7 @@ pub struct ProcessControlBlockInner {
     pub mutex_list: Vec<Option<Arc<dyn Mutex>>>,
     pub semaphore_list: Vec<Option<Arc<Semaphore>>>,
     pub condvar_list: Vec<Option<Arc<Condvar>>>,
+    pub path: String,
 }
 
 impl ProcessControlBlockInner {
@@ -71,7 +72,7 @@ impl ProcessControlBlock {
         self.inner.exclusive_access()
     }
 
-    pub fn new(elf_data: &[u8]) -> Arc<Self> {
+    pub fn new(elf_data: &[u8],path:String) -> Arc<Self> {
         // memory_set with elf program headers/trampoline/trap context/user stack
         let (memory_set, ustack_base, entry_point) = MemorySet::from_elf(elf_data);
         // allocate a pid
@@ -99,6 +100,7 @@ impl ProcessControlBlock {
                     mutex_list: Vec::new(),
                     semaphore_list: Vec::new(),
                     condvar_list: Vec::new(),
+                    path:path,
                 })
             },
         });
@@ -122,6 +124,7 @@ impl ProcessControlBlock {
             trap_handler as usize,
         );
         // add main thread to the process
+        // println!("Getting PCB in src/task/process.rs PCB::new()");
         let mut process_inner = process.inner_exclusive_access();
         process_inner.tasks.push(Some(Arc::clone(&task)));
         drop(process_inner);
@@ -132,12 +135,16 @@ impl ProcessControlBlock {
     }
 
     /// Only support processes with a single thread.
-    pub fn exec(self: &Arc<Self>, elf_data: &[u8], args: Vec<String>) {
+    pub fn exec(self: &Arc<Self>, elf_data: &[u8], args: Vec<String>, path:String) {
+        // println!("Getting PCB in src/task/process.rs PCB::exec()");
         assert_eq!(self.inner_exclusive_access().thread_count(), 1);
+        // println!("Getting PCB AGAIN in src/task/process.rs PCB::exec()");
+        self.inner_exclusive_access().path=path;
         // memory_set with elf program headers/trampoline/trap context/user stack
         let (memory_set, ustack_base, entry_point) = MemorySet::from_elf(elf_data);
         let new_token = memory_set.token();
         // substitute memory_set
+        // println!("Getting PCB AGAIN AGAIN in src/task/process.rs PCB::exec()");
         self.inner_exclusive_access().memory_set = memory_set;
         // then we alloc user resource for main thread again
         // since memory_set has been changed
@@ -186,7 +193,9 @@ impl ProcessControlBlock {
 
     /// Only support processes with a single thread.
     pub fn fork(self: &Arc<Self>) -> Arc<Self> {
+        // println!("Getting PCB in src/task/process.rs PCB::fork()");
         let mut parent = self.inner_exclusive_access();
+        let parent_path = parent.path.clone();
         assert_eq!(parent.thread_count(), 1);
         // clone parent's memory_set completely including trampoline/ustacks/trap_cxs
         let memory_set = MemorySet::from_existed_user(&parent.memory_set);
@@ -218,12 +227,14 @@ impl ProcessControlBlock {
                     mutex_list: Vec::new(),
                     semaphore_list: Vec::new(),
                     condvar_list: Vec::new(),
+                    path: parent_path,
                 })
             },
         });
         // add child
         parent.children.push(Arc::clone(&child));
         // create main thread of child process
+        // println!("Getting PCB AGAIN AGAIN in src/task/process.rs PCB::fork()");
         let task = Arc::new(TaskControlBlock::new(
             Arc::clone(&child),
             parent
@@ -237,6 +248,7 @@ impl ProcessControlBlock {
             // but mention that we allocate a new kstack here
             false,
         ));
+        // println!("Getting PCB AGAIN AGAIN AGAIN in src/task/process.rs PCB::fork()");
         // attach task to child process
         let mut child_inner = child.inner_exclusive_access();
         child_inner.tasks.push(Some(Arc::clone(&task)));

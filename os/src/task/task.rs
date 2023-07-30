@@ -22,6 +22,7 @@ impl TaskControlBlock {
 
     pub fn get_user_token(&self) -> usize {
         let process = self.process.upgrade().unwrap();
+        // println!("Getting PCB in src/task/task.rs get_user_token()");
         let inner = process.inner_exclusive_access();
         inner.memory_set.token()
     }

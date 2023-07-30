@@ -34,7 +34,7 @@ pub fn kernel_token() -> usize {
 }
 
 pub struct MemorySet {
-    page_table: PageTable,
+    pub page_table: PageTable,
     areas: Vec<MapArea>,
 }
 
@@ -245,6 +245,28 @@ impl MemorySet {
         //*self = Self::new_bare();
         self.areas.clear();
     }
+    /// Test if [`start_addr`, `end_addr`) is a free area
+    pub fn test_free_area(&self, start_addr: usize, end_addr: usize) -> bool {
+        self.areas
+            .iter()
+            .find(|area| area.is_overlap_with(VirtAddr(start_addr), VirtAddr(end_addr)))
+            .is_none()
+    }
+    /// Find a free area with hint address `addr_hint` and length `len`.
+    /// Return the start address of found free area.
+    /// Used for mmap.
+    pub fn find_free_area(&self, addr_hint: usize, len: usize) -> VirtAddr {
+        // brute force:
+        // try each area's end address as the start
+        super::address::VirtAddr(
+            core::iter::once(addr_hint)//czy is this correct?
+            //.chain(self.areas.iter().map(|area| area.end_addr))//czy we dont have end_addr. what does this line do? what's an alternative solution?
+            //.map(|addr| (addr + PAGE_SIZE - 1) & !(PAGE_SIZE - 1)) // round up a page
+            .chain(self.areas.iter().map(|area|area.vpn_range.get_end().0+PAGE_SIZE))//should we -1?
+            .find(|&addr| self.test_free_area(addr, addr + len))
+            .expect("failed to find free area ???")
+        ) 
+    }
 }
 
 pub struct MapArea {
@@ -335,6 +357,21 @@ impl MapArea {
             }
             current_vpn.step();
         }
+    }
+
+    /// Test whether this area is (page) overlap with area [`start_addr`, `end_addr`)
+    pub fn is_overlap_with(&self, start_addr: VirtAddr, end_addr: VirtAddr) -> bool {
+        // original from rCore-ebpf: 
+        // let p0 = Page::of_addr(self.start_addr);
+        // let p1 = Page::of_addr(self.end_addr - 1) + 1;
+        // let p2 = Page::of_addr(start_addr);
+        // let p3 = Page::of_addr(end_addr - 1) + 1;
+        // if OS crashes, here should be the first place to check with.
+        let p0 = self.vpn_range.get_start();
+        let p1 = VirtPageNum(self.vpn_range.get_end().0+PAGE_SIZE); //czy is this mathematically correct?
+        let p2 =  start_addr.floor();//VirtPageNum::from(start_addr);
+        let p3 = start_addr.ceil();//VirtPageNum::from(end_addr.0+PAGE_SIZE);//Page::of_addr(end_addr - 1) + 1;
+        !(p1 <= p2 || p0 >= p3)
     }
 }
 

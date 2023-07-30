@@ -47,6 +47,11 @@ impl PageTableEntry {
     pub fn writable(&self) -> bool {
         (self.flags() & PTEFlags::W) != PTEFlags::empty()
     }
+    pub fn set_writable(&mut self){
+        println!("before: {:x}",self.bits);
+        self.bits |= 0b111;//1<<2 ;
+        println!("after: {:x}",self.bits);
+    }
     pub fn executable(&self) -> bool {
         (self.flags() & PTEFlags::X) != PTEFlags::empty()
     }

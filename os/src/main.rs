@@ -4,6 +4,7 @@
 #![feature(alloc_error_handler)]
 #![feature(map_first_last)]
 
+use crate::console::print;
 //use crate::drivers::{GPU_DEVICE, KEYBOARD_DEVICE, MOUSE_DEVICE, INPUT_CONDVAR};
 use crate::drivers::{GPU_DEVICE, KEYBOARD_DEVICE, MOUSE_DEVICE};
 
@@ -13,6 +14,8 @@ extern crate bitflags;
 extern crate log;
 #[macro_use]
 extern crate alloc;
+#[macro_use]
+extern crate ruprobes;
 
 #[path = "boards/qemu.rs"]
 mod board;

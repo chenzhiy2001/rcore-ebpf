@@ -15,6 +15,7 @@ pub fn sys_framebuffer() -> isize {
     let pn_offset = fb_start_ppn.0 as isize - fb_start_vpn.0 as isize;
 
     let current_process = current_process();
+    // println!("Getting PCB in src/syscall/gui.rs sys_framebuffer()");
     let mut inner = current_process.inner_exclusive_access();
     inner.memory_set.push(
         MapArea::new(

@@ -12,6 +12,7 @@ const N: usize = 10;
 static P: i32 = 10007;
 type Arr = [[i32; N]; N];
 
+#[inline(never)]
 fn work(times: isize) {
     let mut a: Arr = Default::default();
     let mut b: Arr = Default::default();
@@ -46,6 +47,9 @@ fn work(times: isize) {
 
 #[no_mangle]
 pub fn main() -> i32 {
+
+    println!("main is {:x}",main as usize);
+    println!("work is {:x}",work as usize);
     for _ in 0..NUM {
         let pid = fork();
         if pid == 0 {

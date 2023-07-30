@@ -130,6 +130,7 @@ impl TaskUserRes {
         ustack_base: usize,
         alloc_user_res: bool,
     ) -> Self {
+        // println!("Getting PCB in src/task/id.rs TaskUserRes::new()");
         let tid = process.inner_exclusive_access().alloc_tid();
         let task_user_res = Self {
             tid,
@@ -144,6 +145,7 @@ impl TaskUserRes {
 
     pub fn alloc_user_res(&self) {
         let process = self.process.upgrade().unwrap();
+        // println!("Getting PCB in src/task/id.rs alloc_user_res()");
         let mut process_inner = process.inner_exclusive_access();
         // alloc user stack
         let ustack_bottom = ustack_bottom_from_tid(self.ustack_base, self.tid);
@@ -166,6 +168,7 @@ impl TaskUserRes {
     fn dealloc_user_res(&self) {
         // dealloc tid
         let process = self.process.upgrade().unwrap();
+        // println!("Getting PCB in src/task/id.rs dealloc_user_res()");
         let mut process_inner = process.inner_exclusive_access();
         // dealloc ustack manually
         let ustack_bottom_va: VirtAddr = ustack_bottom_from_tid(self.ustack_base, self.tid).into();
@@ -181,6 +184,7 @@ impl TaskUserRes {
 
     #[allow(unused)]
     pub fn alloc_tid(&mut self) {
+        // println!("Getting PCB in src/task/id.rs alloc_tid()");
         self.tid = self
             .process
             .upgrade()
@@ -191,6 +195,7 @@ impl TaskUserRes {
 
     pub fn dealloc_tid(&self) {
         let process = self.process.upgrade().unwrap();
+        // println!("Getting PCB in src/task/id.rs dealloc_tid()");
         let mut process_inner = process.inner_exclusive_access();
         process_inner.dealloc_tid(self.tid);
     }
@@ -201,6 +206,7 @@ impl TaskUserRes {
 
     pub fn trap_cx_ppn(&self) -> PhysPageNum {
         let process = self.process.upgrade().unwrap();
+        // println!("Getting PCB in src/task/id.rs trap_cx_ppn()");
         let process_inner = process.inner_exclusive_access();
         let trap_cx_bottom_va: VirtAddr = trap_cx_bottom_from_tid(self.tid).into();
         process_inner

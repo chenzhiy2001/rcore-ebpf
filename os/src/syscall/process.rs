@@ -8,6 +8,7 @@ use crate::timer::get_time_ms;
 use alloc::string::String;
 use alloc::sync::Arc;
 use alloc::vec::Vec;
+use ruprobes::uprobes_init;
 
 pub fn sys_exit(exit_code: i32) -> ! {
     exit_current_and_run_next(exit_code);
@@ -32,6 +33,7 @@ pub fn sys_fork() -> isize {
     let new_process = current_process.fork();
     let new_pid = new_process.getpid();
     // modify trap context of new_task, because it returns immediately after switching
+    // println!("Getting PCB in src/syscall/process.rs sys_fork()");
     let new_process_inner = new_process.inner_exclusive_access();
     let task = new_process_inner.tasks[0].as_ref().unwrap();
     let trap_cx = task.inner_exclusive_access().get_trap_cx();
@@ -59,7 +61,8 @@ pub fn sys_exec(path: *const u8, mut args: *const usize) -> isize {
         let all_data = app_inode.read_all();
         let process = current_process();
         let argc = args_vec.len();
-        process.exec(all_data.as_slice(), args_vec);
+        process.exec(all_data.as_slice(), args_vec, path);
+        uprobes_init();
         // return argc because cx.x[10] will be covered with it later
         argc as isize
     } else {
@@ -73,6 +76,7 @@ pub fn sys_waitpid(pid: isize, exit_code_ptr: *mut i32) -> isize {
     let process = current_process();
     // find a child process
 
+    // println!("Getting PCB in src/syscall/process.rs sys_waitpid()");
     let mut inner = process.inner_exclusive_access();
     if !inner
         .children
@@ -84,6 +88,7 @@ pub fn sys_waitpid(pid: isize, exit_code_ptr: *mut i32) -> isize {
     }
     let pair = inner.children.iter().enumerate().find(|(_, p)| {
         // ++++ temporarily access child PCB exclusively
+        // println!("Getting PCB AGAIN in src/syscall/process.rs sys_waitpid()");
         p.inner_exclusive_access().is_zombie && (pid == -1 || pid as usize == p.getpid())
         // ++++ release child PCB
     });
@@ -93,6 +98,7 @@ pub fn sys_waitpid(pid: isize, exit_code_ptr: *mut i32) -> isize {
         assert_eq!(Arc::strong_count(&child), 1);
         let found_pid = child.getpid();
         // ++++ temporarily access child PCB exclusively
+        // println!("Getting PCB AGAIN AGAIN in src/syscall/process.rs sys_waitpid()");
         let exit_code = child.inner_exclusive_access().exit_code;
         // ++++ release child PCB
         *translated_refmut(inner.memory_set.token(), exit_code_ptr) = exit_code;
@@ -106,6 +112,7 @@ pub fn sys_waitpid(pid: isize, exit_code_ptr: *mut i32) -> isize {
 pub fn sys_kill(pid: usize, signal: u32) -> isize {
     if let Some(process) = pid2process(pid) {
         if let Some(flag) = SignalFlags::from_bits(signal) {
+            // println!("Getting PCB in src/syscall/process.rs sys_kill()");
             process.inner_exclusive_access().signals |= flag;
             0
         } else {

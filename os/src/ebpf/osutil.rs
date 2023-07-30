@@ -79,7 +79,9 @@ pub fn os_console_write_str(s: &str) -> i64 {
 
 /// # os_copy_from_user
 /// copy `len` bytes from user space addresss `usr_addr` to `kern_buf`
-pub fn os_copy_from_user(usr_addr: usize, kern_buf: *mut u8, len: usize) -> i32 {
+#[inline(never)]
+#[no_mangle]
+pub extern "C" fn os_copy_from_user(usr_addr: usize, kern_buf: *mut u8, len: usize) -> i32 {
     use crate::mm::translated_byte_buffer;
     use crate::task::current_user_token;
     let t = translated_byte_buffer(current_user_token(), usr_addr as *const u8, len);    
@@ -93,7 +95,9 @@ pub fn os_copy_from_user(usr_addr: usize, kern_buf: *mut u8, len: usize) -> i32 
  
 /// # os_copy_to_user
 /// copy `len` bytes to user space addresss `usr_addr` from `kern_buf`
-pub fn os_copy_to_user(usr_addr: usize, kern_buf: *const u8, len: usize) -> i32 {
+#[inline(never)]
+#[no_mangle]
+pub extern "C" fn os_copy_to_user(usr_addr: usize, kern_buf: *const u8, len: usize) -> i32 {
     use crate::mm::translated_byte_buffer;
     use crate::task::current_user_token;
     let dst = translated_byte_buffer(current_user_token(), usr_addr as *const u8, len);

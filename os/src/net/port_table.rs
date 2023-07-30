@@ -90,6 +90,7 @@ pub fn check_accept(port: u16, tcp_packet: &TCPPacket) -> Option<()> {
 
 pub fn accept_connection(_port: u16, tcp_packet: &TCPPacket, task: Arc<TaskControlBlock>) {
     let process = task.process.upgrade().unwrap();
+    // println!("Getting PCB in src/net/port_table.rs accept_connection()");
     let mut inner = process.inner_exclusive_access();
     let fd = inner.alloc_fd();
 

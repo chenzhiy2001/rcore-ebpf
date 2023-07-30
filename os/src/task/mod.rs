@@ -11,6 +11,7 @@ mod task;
 use self::id::TaskUserRes;
 use crate::fs::{open_file, OpenFlags};
 use crate::sbi::shutdown;
+use alloc::string::ToString;
 use alloc::{sync::Arc, vec::Vec};
 use lazy_static::*;
 use manager::fetch_task;
@@ -32,6 +33,7 @@ pub fn suspend_current_and_run_next() {
     let task = take_current_task().unwrap();
 
     // ---- access current TCB exclusively
+    // println!("Getting PCB in src/task/mod.rs suspend_current_and_run_next()");
     let mut task_inner = task.inner_exclusive_access();
     let task_cx_ptr = &mut task_inner.task_cx as *mut TaskContext;
     // Change status to Ready
@@ -48,6 +50,7 @@ pub fn suspend_current_and_run_next() {
 /// This function must be followed by a schedule
 pub fn block_current_task() -> *mut TaskContext {
     let task = take_current_task().unwrap();
+    // println!("Getting PCB in src/task/mod.rs block_current_task()");
     let mut task_inner = task.inner_exclusive_access();
     task_inner.task_status = TaskStatus::Blocked;
     &mut task_inner.task_cx as *mut TaskContext
@@ -89,6 +92,7 @@ pub fn exit_current_and_run_next(exit_code: i32) {
             }
         }
         remove_from_pid2process(pid);
+        // println!("Getting PCB in src/task/mod.rs exit_current_and_run_next()");
         let mut process_inner = process.inner_exclusive_access();
         // mark this process as a zombie process
         process_inner.is_zombie = true;
@@ -97,8 +101,10 @@ pub fn exit_current_and_run_next(exit_code: i32) {
 
         {
             // move all child processes under init process
+            // println!("Getting PCB AGAIN in src/task/mod.rs exit_current_and_run_next()");
             let mut initproc_inner = INITPROC.inner_exclusive_access();
             for child in process_inner.children.iter() {
+                // println!("Getting PCB AGAIN AGAIN in src/task/mod.rs exit_current_and_run_next()");
                 child.inner_exclusive_access().parent = Some(Arc::downgrade(&INITPROC));
                 initproc_inner.children.push(child.clone());
             }
@@ -121,6 +127,7 @@ pub fn exit_current_and_run_next(exit_code: i32) {
         drop(process_inner);
         recycle_res.clear();
 
+        // println!("Getting PCB AGAIN AGAIN AGAIN in src/task/mod.rs exit_current_and_run_next()");
         let mut process_inner = process.inner_exclusive_access();
         process_inner.children.clear();
         // deallocate other data in user space i.e. program code/data section
@@ -138,7 +145,7 @@ lazy_static! {
     pub static ref INITPROC: Arc<ProcessControlBlock> = {
         let inode = open_file("initproc", OpenFlags::RDONLY).unwrap();
         let v = inode.read_all();
-        ProcessControlBlock::new(v.as_slice())
+        ProcessControlBlock::new(v.as_slice(),"initproc".to_string())
     };
 }
 
@@ -148,12 +155,27 @@ pub fn add_initproc() {
 
 pub fn check_signals_of_current() -> Option<(i32, &'static str)> {
     let process = current_process();
+    // println!("Getting PCB in src/task/mod.rs check_signals_of_current()");
     let process_inner = process.inner_exclusive_access();
     process_inner.signals.check_error()
 }
 
 pub fn current_add_signal(signal: SignalFlags) {
     let process = current_process();
+    // println!("Getting PCB in src/task/mod.rs current_add_signal()");
     let mut process_inner = process.inner_exclusive_access();
     process_inner.signals |= signal;
+}
+
+/// use this for uprobe
+#[no_mangle]
+pub extern "C" fn get_exec_path() -> alloc::string::String{
+    println!("get_exec_path");
+    // get path of current thread
+    let my_process = &current_task().unwrap().process;
+    let rrr = my_process.upgrade().unwrap();
+    // println!("Getting PCB in src/task/mod.rs get_exec_path()");
+    let ret=my_process.upgrade().unwrap().inner_exclusive_access().path.clone();
+    println!("get_exec_path succeeded. path = {}", ret);
+    ret
 }

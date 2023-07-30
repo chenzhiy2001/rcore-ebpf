@@ -21,6 +21,7 @@ class SideStub(gdb.MICommand):
            -side-stub tracepoint-then-get-registers <symbol>
            -side-stub tracepoint-then-get-memory <addr> <length>
            -side-stub tracepoint-then-get-arguments <function name>
+           -side-stub tracepoint_user_program_then_get_registers <program_name> <addr such as 0x80201234>
     """
     def __init__(self):
         # 在构造函数中注册该命令的名字
@@ -59,6 +60,8 @@ class SideStub(gdb.MICommand):
 
         elif (argv[0]=='tracepoint_then_get_arguments'):
             self.tracepoint_then_get_arguments(argv[1])
+        elif (argv[0]=='tracepoint_user_program_then_get_registers'):
+            self.tracepoint_user_program_then_get_registers(argv[1],argv[2])
         else:
             raise gdb.GdbError('输入参数数目不对，help side-stub以获得用法')
         
@@ -72,6 +75,10 @@ class SideStub(gdb.MICommand):
         # self.write_queue.append('#'+command+symbol+'#'+hex(sum(command.encode('ascii')) % 256)[2:])
         self.ser.write(('$'+command+symbol+'#'+hex(sum(command.encode('ascii')) % 256)[2:]).encode('ascii'))
 
+
+    def tracepoint_user_program_then_get_registers(self,program_name,addr):
+        command = 'vTU' # it's obvious that there should NOT be : in program_name,
+        self.ser.write(('$'+command+program_name+':'+addr+'#'+hex(sum(command.encode('ascii')) % 256)[2:]).encode('ascii'))
 
     def tracepoint_then_get_arguments(self,fn_name):
         pass

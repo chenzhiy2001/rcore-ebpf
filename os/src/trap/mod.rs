@@ -1,7 +1,11 @@
 mod context;
 
+extern crate ruprobes;
+
 use crate::config::TRAMPOLINE;
 //use crate::probe::kprobes_breakpoint_handler;
+use ruprobes::uprobes_trap_handler;
+use trapframe::{UserContext, GeneralRegs};
 use crate::syscall::syscall;
 use crate::task::{
     check_signals_of_current, current_add_signal, current_trap_cx, current_trap_cx_user_va,
@@ -14,6 +18,7 @@ use riscv::register::{
     scause::{self, Exception, Interrupt, Trap},
     sie, sip, sscratch, sstatus, stval, stvec,
 };
+use ruprobes::*;
 
 global_asm!(include_str!("trap.S"));
 
@@ -64,6 +69,15 @@ pub fn trap_handler() -> ! {
     let stval = stval::read();
     // println!("into {:?}", scause.cause());
     match scause.cause() {
+        Trap::Exception(Exception::Breakpoint) => { // uprobe
+            let mut cx = current_trap_cx();
+            println!("[user] breakpoint at {:#x}", cx.sepc);
+            unsafe {
+                // This works but looks messy. We should use a clearer syntax
+                // TrapContext(from rCore-Tutorial) => UserContext (from rCore-Plus, supported by ruprobes)
+                uprobes_trap_handler(cx);
+            }
+        }
         Trap::Exception(Exception::UserEnvCall) => {
             // jump to next instruction anyway
             let mut cx = current_trap_cx();

@@ -32,6 +32,9 @@ pub enum BpfObject {
     Program(Arc<BpfProgram>),
 }
 
+pub use osutil::os_copy_from_user;
+pub use osutil::os_copy_to_user;
+
 impl BpfObject {
     /// get the map
     pub fn is_map(&self) -> Option<&SharedBpfMap> {

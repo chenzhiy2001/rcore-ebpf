@@ -7,6 +7,7 @@ use alloc::sync::Arc;
 // just support udp
 pub fn sys_connect(raddr: u32, lport: u16, rport: u16) -> isize {
     let process = current_process();
+    // println!("Getting PCB in src/syscall/net.rs sys_connect()");
     let mut inner = process.inner_exclusive_access();
     let fd = inner.alloc_fd();
     let udp_node = UDP::new(IPv4::from_u32(raddr), lport, rport);
@@ -19,6 +20,7 @@ pub fn sys_listen(port: u16) -> isize {
     match listen(port) {
         Some(port_index) => {
             let process = current_process();
+            // println!("Getting PCB in src/syscall/net.rs sys_listen()");
             let mut inner = process.inner_exclusive_access();
             let fd = inner.alloc_fd();
             let port_fd = PortFd::new(port_index);

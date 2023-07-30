@@ -7,6 +7,8 @@ If you don't know  Rust Language and try to learn it, please visit [Rust Learnin
 
 Official QQ group number: 735045051
 
+## notes on ebpf version
+You need to run like this: `CC=riscv64-linux-musl-gcc make run`
 ## news
 - 23/06/2022: Version 3.6.0 is on the way! Now we directly update the code on chX branches, please periodically check if there are any updates.
 
