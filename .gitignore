@@ -13,3 +13,5 @@ os/virt.out
 tools/
 pushall.sh
 .vscode/*.log
+
+user/build/
