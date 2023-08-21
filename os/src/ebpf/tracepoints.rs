@@ -301,7 +301,7 @@ pub fn bpf_program_attach(target: &str, prog_fd: u32) -> BpfResult {
     }?;
     let (tp_type, addr_string, user_program_path) = parse_tracepoint(target)?;
     //let addr = resolve_symbol(&fn_name).ok_or(ENOENT)?;
-    println!("addr string is {:?}", addr_string);
+    debug!("addr string is {:?}", addr_string);
     let addr:usize = usize::from_str_radix(&addr_string[2..], 16).unwrap();
     //let addr = addr_string.parse::<usize>().unwrap();
 

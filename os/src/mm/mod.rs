@@ -27,7 +27,7 @@ use MapType::Framed;
 /// only use this for uprobe
 #[no_mangle]
 pub extern "C" fn get_new_page(addr: usize, len: usize) -> usize{
-    println!("get_new_page");
+    //println!("get_new_page");
     let binding = crate::task::current_process();
     // println!("Getting PCB in get_new_page");
     let mut current_proc = binding.inner_exclusive_access();
@@ -39,12 +39,12 @@ pub extern "C" fn get_new_page(addr: usize, len: usize) -> usize{
 /// only use this for uprobe
 #[no_mangle]
 pub extern "C" fn set_writeable(addr: usize){
-    println!("set_writable. addr is {:x}",addr);
+    //println!("set_writable. addr is {:x}",addr);
     let binding = crate::task::current_process();
     // println!("Getting PCB in set_writeable");
     let current_proc = binding.inner_exclusive_access();
     current_proc.memory_set.page_table.translate(VirtAddr(addr).floor()).unwrap().set_writable();
     //page_table_entry.bits = page_table_entry.bits | ((1 << 2) as usize);//(1 << 2) is PTEFlags::W; 
-    println!("setted!");
+    //println!("setted!");
     unsafe {asm!("fence.i");}
 }

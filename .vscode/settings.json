@@ -17,7 +17,10 @@
         "varargs.h": "c",
         "limits.h": "c",
         "features.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "uprobe.h": "c",
+        "bpf.h": "c",
+        "kprobe.h": "c"
     },
     // "rust-analyzer.cargo.features": [
     //     "board_qemu"

@@ -69,7 +69,7 @@ impl File for TCP {
             }
         }
     }
-
+    #[inline(never)]
     fn write(&self, buf: crate::mm::UserBuffer) -> usize {
         let lose_net_stack = LOSE_NET_STACK.0.exclusive_access();
 

@@ -170,12 +170,12 @@ pub fn current_add_signal(signal: SignalFlags) {
 /// use this for uprobe
 #[no_mangle]
 pub extern "C" fn get_exec_path() -> alloc::string::String{
-    println!("get_exec_path");
+    //println!("get_exec_path");
     // get path of current thread
     let my_process = &current_task().unwrap().process;
     let rrr = my_process.upgrade().unwrap();
     // println!("Getting PCB in src/task/mod.rs get_exec_path()");
     let ret=my_process.upgrade().unwrap().inner_exclusive_access().path.clone();
-    println!("get_exec_path succeeded. path = {}", ret);
+    //println!("get_exec_path succeeded. path = {}", ret);
     ret
 }

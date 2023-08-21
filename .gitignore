@@ -15,3 +15,7 @@ pushall.sh
 .vscode/*.log
 
 user/build/
+
+code_debug_qemu_output_history.txt
+
+qemu_tty

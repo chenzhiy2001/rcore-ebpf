@@ -18,7 +18,7 @@ class SideStub(gdb.MICommand):
     # gdb会提取该类的__doc__属性作为对应命令的文档
     """side-stub
     Usage: -side-stub target remote /dev/tty1
-           -side-stub tracepoint-then-get-registers <symbol>
+           -side-stub tracepoint-then-get-registers <addr such as 0x80201234>
            -side-stub tracepoint-then-get-memory <addr> <length>
            -side-stub tracepoint-then-get-arguments <function name>
            -side-stub tracepoint_user_program_then_get_registers <program_name> <addr such as 0x80201234>
@@ -100,7 +100,7 @@ class SideStub(gdb.MICommand):
             if c == '#':
                 end_count = 3
             end_count -= 1
-        gdb.execute('echo '+starts_with+msg+"\n")
+        gdb.execute('echo eBPF Message: '+starts_with+msg+"\n")
 
 
     

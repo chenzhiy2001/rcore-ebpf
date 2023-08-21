@@ -359,7 +359,7 @@ impl MapArea {
         }
     }
 
-    /// Test whether this area is (page) overlap with area [`start_addr`, `end_addr`)
+    /// Test whether this area is (page) overlap with area [`start_addr`, `end_addr`)? or [`start_addr`, `end_addr`]?
     pub fn is_overlap_with(&self, start_addr: VirtAddr, end_addr: VirtAddr) -> bool {
         // original from rCore-ebpf: 
         // let p0 = Page::of_addr(self.start_addr);
@@ -368,10 +368,10 @@ impl MapArea {
         // let p3 = Page::of_addr(end_addr - 1) + 1;
         // if OS crashes, here should be the first place to check with.
         let p0 = self.vpn_range.get_start();
-        let p1 = VirtPageNum(self.vpn_range.get_end().0+PAGE_SIZE); //czy is this mathematically correct?
+        let p1 = self.vpn_range.get_end();
         let p2 =  start_addr.floor();//VirtPageNum::from(start_addr);
-        let p3 = start_addr.ceil();//VirtPageNum::from(end_addr.0+PAGE_SIZE);//Page::of_addr(end_addr - 1) + 1;
-        !(p1 <= p2 || p0 >= p3)
+        let p3 = end_addr.ceil();//VirtPageNum::from(end_addr.0+PAGE_SIZE);//Page::of_addr(end_addr - 1) + 1;
+        !(p1 < p2 || p0 > p3)
     }
 }
 
