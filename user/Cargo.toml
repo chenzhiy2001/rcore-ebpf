@@ -16,4 +16,6 @@ oorandom ="11"
 virtio-input-decoder = "0.1.4"
 
 [profile.release]
-debug = true
+debug=true
+debuginfo-level = 1
+debuginfo-level-rustc = 2

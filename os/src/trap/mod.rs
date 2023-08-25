@@ -63,6 +63,7 @@ fn disable_supervisor_interrupt() {
 }
 
 #[no_mangle]
+#[inline(never)]
 pub fn trap_handler() -> ! {
     set_kernel_trap_entry();
     let scause = scause::read();
@@ -135,6 +136,7 @@ pub fn trap_handler() -> ! {
 }
 
 #[no_mangle]
+#[inline(never)]
 pub fn trap_return() -> ! {
     disable_supervisor_interrupt();
     set_user_trap_entry();
