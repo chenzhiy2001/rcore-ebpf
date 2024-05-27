@@ -178,8 +178,7 @@ pub fn trap_from_kernel(mut _trap_cx: &TrapContext) {
         }
         Trap::Exception(Exception::Breakpoint) => {
             println!("[kernel] breakpoint at {:#x}", _trap_cx.sepc);
-            unsafe {kprobes_breakpoint_handler(&mut *(_trap_cx as *const TrapContext as *mut TrapContext));} // ugly :(
-        }
+            unsafe {kprobes_breakpoint_handler(_trap_cx);}
         _ => {
             panic!(
                 "Unsupported trap from kernel: {:?}, stval = {:#x}!",
