@@ -27,7 +27,7 @@ numeric-enum-macro = "0.2.0"
 dyn-fmt = { version = "0.3.0", default-features = false }
 downcast-rs = { version = "1.2", default-features = false }
 ebpf2rv = { git = "https://github.com/livingshade/ebpf2rv", rev = "ecfc526" }
-ruprobes = { path = "../../../ruprobes", features = ["rCore-Tutorial"] }
+ruprobes = { git = "https://github.com/chenzhiy2001/ruprobes", features = ["rCore-Tutorial"] }
 trap_context_riscv = { git = "https://github.com/chenzhiy2001/trap_context_riscv"}
 trapframe = { git = "https://github.com/rcore-os/trapframe-rs"}
 spin = "0.5"
