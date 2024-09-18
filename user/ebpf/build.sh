@@ -5,9 +5,9 @@ echo $(pwd)
 
 pushd ./ebpf
 
-builddir="/home/oslab/rCore-Tutorial-v3-eBPF/rCore-Tutorial-v3/user/build"
-targetdir="/home/oslab/rCore-Tutorial-v3-eBPF/rCore-Tutorial-v3/user/target/riscv64gc-unknown-none-elf/release/"
-ucoredir="/home/oslab/rCore-Tutorial-v3-eBPF/rCore-Tutorial-v3/ucore"
+builddir="/home/oslab/rCore-Tutorial-v3-eBPF/rcore-ebpf/user/build"
+targetdir="/home/oslab/rCore-Tutorial-v3-eBPF/rcore-ebpf/user/target/riscv64gc-unknown-none-elf/release/"
+ucoredir="/home/oslab/rCore-Tutorial-v3-eBPF/rcore-ebpf/ucore"
 
 cur=$(pwd)
 
